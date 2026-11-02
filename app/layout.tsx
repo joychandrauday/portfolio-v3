@@ -11,25 +11,28 @@ const newsreader = Newsreader({
   variable: "--font-newsreader",
   style: ["normal", "italic"],
   display: "swap",
-  adjustFontFallback: false,
+  adjustFontFallback: true,
 });
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  adjustFontFallback: true,
 });
 
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
+  adjustFontFallback: true,
 });
 
 const anekBangla = Anek_Bangla({
   subsets: ["bengali", "latin"],
   variable: "--font-anek-bangla",
   display: "swap",
+  adjustFontFallback: true,
 });
 
 const notoSerifBengali = Noto_Serif_Bengali({
@@ -37,6 +40,7 @@ const notoSerifBengali = Noto_Serif_Bengali({
   weight: ["400", "500", "600", "700"],
   variable: "--font-noto-serif-bn",
   display: "swap",
+  adjustFontFallback: true,
 });
 
 export const viewport: Viewport = {

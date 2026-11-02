@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Header from "@/components/Header";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Search } from "lucide-react";
 
@@ -29,9 +28,7 @@ export default function LearnIndex() {
   );
 
   return (
-    <div className="min-h-screen bg-bg text-text-primary">
-      <Header />
-      
+    <div className="min-h-screen bg-bg text-text-primary">      
       <main className="max-w-3xl mx-auto px-6 py-12 space-y-8">
         
         {/* Search */}
