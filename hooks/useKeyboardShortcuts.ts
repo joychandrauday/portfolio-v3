@@ -41,6 +41,10 @@ export function useKeyboardShortcuts() {
           e.preventDefault();
           router.push("/resume");
           break;
+        case "y":
+          e.preventDefault();
+          router.push("/learn");
+          break;
       }
     };
 

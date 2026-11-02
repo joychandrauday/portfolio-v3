@@ -34,6 +34,9 @@ export default function Navbar() {
       } else if (e.key === "b" || e.key === "B") {
         e.preventDefault();
         router.push("/blog");
+      } else if (e.key === "y" || e.key === "Y") {
+        e.preventDefault();
+        router.push("/learn");
       } else if (e.key === "o" || e.key === "O") {
         e.preventDefault();
         router.push("/ops");
@@ -84,6 +87,14 @@ export default function Navbar() {
           >
             <span>{isBn ? "সিভি" : "resume"}</span>
             <ArrowUpRight className="w-3 h-3 opacity-60" />
+          </Link>
+
+          <Link
+            href="/learn"
+            className="hover:text-text-primary transition-colors hidden sm:inline-block"
+            title="Learn"
+          >
+            {isBn ? "শিখার পরিধি" : "learn"}
           </Link>
 
           {/* Theme switcher */}

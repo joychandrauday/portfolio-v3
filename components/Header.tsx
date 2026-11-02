@@ -52,6 +52,14 @@ export default function Header() {
           <ArrowUpRight className="w-3 h-3 opacity-60" />
         </Link>
 
+        <Link
+          href="/learn"
+          className="hover:text-text-primary transition-colors hidden sm:inline-block"
+          title="Learning Roadmaps (Hotkey: Y)"
+        >
+          {isBn ? "শিখার পরিধি" : "learn"}
+        </Link>
+
         {/* Theme switcher */}
         <button
           onClick={toggleTheme}
