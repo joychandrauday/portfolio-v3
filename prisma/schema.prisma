@@ -1,0 +1,299 @@
+// Prisma Schema — Joy Chandra Uday Portfolio Ops
+// PostgreSQL target (Neon / standard Postgres)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Bilingual Blog Posts ──────────────────────────────────────────────
+model Post {
+  id                   String   @id @default(cuid())
+  slug                 String   @unique
+  titleEn              String   @map("title_en")
+  titleBn              String   @map("title_bn")
+  excerptEn            String   @map("excerpt_en")
+  excerptBn            String   @map("excerpt_bn")
+  contentEn            String   @map("content_en")
+  contentBn            String   @map("content_bn")
+  tags                 String[] @default([])
+  coverImage           String?  @map("cover_image")
+  readingTimeMinutes   Int      @map("reading_time_minutes") @default(3)
+  published            Boolean  @default(false)
+  publishedAt          DateTime? @map("published_at")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@index([published])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+// ── Project Showcase ──────────────────────────────────────────────────
+model Project {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  title      String
+  summaryEn  String   @map("summary_en")
+  summaryBn  String   @map("summary_bn")
+  contentEn  String   @default("") @map("content_en")
+  contentBn  String   @default("") @map("content_bn")
+  category   String   @default("Full Stack")
+  techStack   String[] @default([]) @map("tech_stack")
+  liveUrl    String?  @map("live_url")
+  repoUrl    String?  @map("repo_url")
+  featured   Boolean  @default(false)
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([featured])
+  @@index([sortOrder])
+  @@map("projects")
+}
+
+// ── Career Experience Timeline ────────────────────────────────────────
+model Experience {
+  id            String   @id @default(cuid())
+  company       String
+  roleEn        String   @map("role_en")
+  roleBn        String   @map("role_bn")
+  periodEn      String   @map("period_en")
+  periodBn      String   @map("period_bn")
+  descriptionEn String   @map("description_en")
+  descriptionBn String   @map("description_bn")
+  skills        String[] @default([])
+  sortOrder     Int      @default(0) @map("sort_order")
+
+  @@index([sortOrder])
+  @@map("experiences")
+}
+
+// ── Company Knowledge Base (auto-populated from job postings) ─────────
+model Company {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  website       String?
+  careerPageUrl String?  @map("career_page_url")
+  industry      String?
+  companySize   String?  @map("company_size")
+  headquarters  String?
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  jobs          JobApplication[]
+
+  @@index([name])
+  @@map("companies")
+}
+
+// ── Job Application CRM ───────────────────────────────────────────────
+model JobApplication {
+  id             String   @id @default(cuid())
+  company        String
+  role           String
+  status         String   @default("wishlist")
+  location       String   @default("Remote")
+  salaryRange    String?  @map("salary_range")
+  jobUrl         String?  @map("job_url")
+  jobDescription String?  @map("job_description")
+  contactName    String?  @map("contact_name")
+  contactEmail   String?  @map("contact_email")
+  coverLetter    String?
+  notes          String?
+  matchScore     Int?     @map("match_score")
+  appliedAt      DateTime? @map("applied_at")
+  followUpAt     DateTime? @map("follow_up_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // ── Source / provenance ──────────────────────────────────────────────
+  sourcePortal   String?  @map("source_portal")
+  sourceUrl      String?  @map("source_url")
+  companyId      String?  @map("company_id")
+
+  // ── Company intelligence ─────────────────────────────────────────────
+  companyWebsite  String? @map("company_website")
+  careerPageUrl   String? @map("career_page_url")
+  companyIndustry String? @map("company_industry")
+  companySize     String? @map("company_size")
+
+  // ── Role intelligence ────────────────────────────────────────────────
+  employmentType String?  @map("employment_type")
+  workMode       String?  @map("work_mode")
+  seniority      String?
+  department     String?
+  techStack      String[] @default([]) @map("tech_stack")
+  requirements   String[] @default([])
+  responsibilities String[] @default([])
+  benefits       String[] @default([])
+  tags           String[] @default([])
+
+  // ── Structured compensation ──────────────────────────────────────────
+  salaryMin      Int?     @map("salary_min")
+  salaryMax      Int?     @map("salary_max")
+  salaryCurrency String?  @map("salary_currency")
+  salaryPeriod   String?  @map("salary_period")
+
+  // ── Contacts & AI scoring ────────────────────────────────────────────
+  contactRole    String?  @map("contact_role")
+  contactLinkedIn String? @map("contact_linkedin")
+  priority       String   @default("medium")
+  aiSummary      String?  @map("ai_summary")
+  matchReasons   String[] @default([]) @map("match_reasons")
+  gaps           String[] @default([])
+
+  // ── Timeline automation ──────────────────────────────────────────────
+  postedAt       DateTime? @map("posted_at")
+  deadline       DateTime?
+  lastContactedAt DateTime? @map("last_contacted_at")
+  nextActionAt   DateTime? @map("next_action_at")
+
+  companyRef     Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  emails         Email[]
+
+  @@index([status])
+  @@index([updatedAt])
+  @@index([companyId])
+  @@index([sourcePortal])
+  @@index([salaryMax])
+  @@map("job_applications")
+}
+
+// ── Second Brain / TIL Learnings ──────────────────────────────────────
+model Learning {
+  id         String   @id @default(cuid())
+  title      String
+  category   String   @default("Engineering")
+  status     String   @default("learning")
+  content    String
+  takeaways  String[] @default([])
+  resources  String[] @default([])
+  isPublic   Boolean  @default(true) @map("is_public")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  progress   Float?   @default(0)
+  
+  @@index([category])
+  @@index([status])
+  @@map("learnings")
+}
+
+// ── Learning Flow: Tracks, Modules, Sessions ──────────────────────────
+// A track is what you're learning (DSA, Docker, ...). Modules are the
+// ordered steps inside it. Sessions are logged study time.
+model LearningTrack {
+  id                String    @id @default(cuid())
+  title             String
+  domain            String    @default("General")
+  goal              String    @default("")
+  level             String    @default("beginner")
+  status            String    @default("active")
+  color             String    @default("#f59e0b")
+  targetDate        DateTime? @map("target_date")
+  weeklyGoalMinutes Int       @default(300) @map("weekly_goal_minutes")
+  sortOrder         Int       @default(0) @map("sort_order")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  modules  LearningModule[]
+  sessions LearningSession[]
+
+  @@index([status])
+  @@index([sortOrder])
+  @@map("learning_tracks")
+}
+
+model LearningModule {
+  id              String    @id @default(cuid())
+  trackId         String    @map("track_id")
+  title           String
+  notes           String    @default("")
+  status          String    @default("todo")
+  position        Int       @default(0)
+  estimateMinutes Int       @default(30) @map("estimate_minutes")
+  resourceUrl     String?   @map("resource_url")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  track    LearningTrack    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  sessions LearningSession[]
+
+  @@index([trackId, position])
+  @@map("learning_modules")
+}
+
+model LearningSession {
+  id        String   @id @default(cuid())
+  trackId   String?  @map("track_id")
+  moduleId  String?  @map("module_id")
+  minutes   Int      @default(30)
+  note      String   @default("")
+  studiedAt DateTime @default(now()) @map("studied_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  track  LearningTrack?  @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  module LearningModule? @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+
+  @@index([studiedAt])
+  @@index([trackId])
+  @@map("learning_sessions")
+}
+
+// ── Sent Email Log ────────────────────────────────────────────────────
+model Email {
+  id          String   @id @default(cuid())
+  inquiryId   String?  @map("inquiry_id")
+  jobId       String?  @map("job_id")
+  to          String
+  subject     String
+  body        String
+  status      String   @default("sent")
+  errorMessage String?  @map("error_message")
+  sentAt      DateTime? @map("sent_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  inquiry     Inquiry? @relation(fields: [inquiryId], references: [id], onDelete: SetNull)
+  job         JobApplication? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([jobId])
+  @@map("emails")
+}
+
+// ── Contact Inquiries Inbox ───────────────────────────────────────────
+model Inquiry {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  subject     String?
+  message     String
+  isRead      Boolean  @default(false) @map("is_read")
+  responded   Boolean  @default(false) @map("responded")
+  aiCategory  String?  @map("ai_category")
+  aiDraft     String?
+  repliedAt   DateTime? @map("replied_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  emails      Email[]
+
+  @@index([isRead])
+  @@index([responded])
+  @@index([createdAt])
+  @@map("inquiries")
+}
+
+// ── Application Settings / Key-Value Store ────────────────────────────
+model AppSetting {
+  key       String    @id
+  value     String
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}

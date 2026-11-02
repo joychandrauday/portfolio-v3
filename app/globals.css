@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg-primary: #fcfbf7;
+  --bg-surface: #f4efe6;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f7f3eb;
+  --text-primary: #1c1917;
+  --text-secondary: #57534e;
+  --text-muted: #8c857b;
+  --border-subtle: #e7e2d7;
+  --border-hover: #d3cbbc;
+  --accent: #9a3412;
+  --accent-hover: #7c2d12;
+  --accent-subtle: rgba(154, 52, 18, 0.08);
+}
+
+html.dark {
+  color-scheme: dark;
+  --bg-primary: #141312;
+  --bg-surface: #1c1b18;
+  --bg-card: #181715;
+  --bg-card-hover: #22201d;
+  --text-primary: #f5f2eb;
+  --text-secondary: #a8a29e;
+  --text-muted: #78716c;
+  --border-subtle: #2d2a26;
+  --border-hover: #44403c;
+  --accent: #f59e0b;
+  --accent-hover: #fbbf24;
+  --accent-subtle: rgba(245, 158, 11, 0.12);
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--accent-subtle);
+    color: var(--text-primary);
+  }
+}
+
+/* Minimal subtle scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Mobile & PWA refinements ────────────────────────────────────────── */
+
+/* iOS Safari auto-zooms any focused input below 16px — keep forms calm. */
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Installed app: no rubber-band overscroll behind the status bar. */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Smooth momentum scrolling for horizontally scrollable tables/rails. */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+

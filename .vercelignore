@@ -1,0 +1,7 @@
+# Keep local secrets and build artifacts out of the Vercel upload
+.env
+.env*.local
+.next
+node_modules
+*.tsbuildinfo
+coverage

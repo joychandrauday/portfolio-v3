@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Brain Station 23",
+    "url": "https://brainstation-23.easy.jobs",
+    "status": 200,
+    "textLength": 56,
+    "preview": "Brain Station 23 | Easy Solution For The Job Recruitment",
+    "hasJobs": true
+  },
+  {
+    "name": "BJIT",
+    "url": "https://bjitgroup.com/career",
+    "status": 200,
+    "textLength": 7011,
+    "preview": "Career | BJIT Job Circular About Us Services Technology Capabilities Works Clients Blog News Career FAQ`s Contact Privacy Policy BJIT Job Circular Home / Career Career Career BJIT places great emphasis on attracting and developing the best available talent. Our people are not only our greatest asset",
+    "hasJobs": true
+  },
+  {
+    "name": "Vivasoft",
+    "url": "https://vivasoftltd.com/career/",
+    "status": 200,
+    "textLength": 4404,
+    "preview": "Vivasoft - Career Skip to content Services Team Augmentation Extend your team with proven experts. End to End Development Complete software development, end to end. MVP Services Turn promising ideas into market-ready MVPs. Offshore Development High-quality development, built to scale. Want to accele",
+    "hasJobs": true
+  },
+  {
+    "name": "Therap BD",
+    "url": "https://therapbd.com/business-analysis/",
+    "status": 200,
+    "textLength": 2961,
+    "preview": "Business Analysis - Therap BD Career Current Openings Departments About Us Contact Us Facebook LinkedIn Youtube --> Skip to content EVV Solutions for States Alaska Delaware Nebraska North Dakota South Dakota EVV Features Secure Login EVV Solutions for States Alaska Delaware Nebraska North Dakota Sou",
+    "hasJobs": true
+  },
+  {
+    "name": "Cefalo",
+    "url": "https://career.cefalo.com/",
+    "status": 200,
+    "textLength": 11405,
+    "preview": "Cefalo | Career About us Career Perks &amp; Benefits Available Positions About us Career Perks &amp; Benefits Available Positions We&#x27;re always looking for new talent Join our team See Available Positions My time at Cefalo has been an inspiring journey of growth and innovation. I have found an a",
+    "hasJobs": true
+  },
+  {
+    "name": "Selise",
+    "url": "https://ats.hirebee.ai/en/company/jobs/selise-bangladesh-ltd",
+    "status": 200,
+    "textLength": 3073,
+    "preview": "SELISE Group Please Wait ... About&nbsp; SELISE Group &nbsp;company Jobs ENG ՀԱՅ РУС ENG ՀԱՅ РУС --> --> --> --> Job category Filter by job category Software development (6) Product/Project Management (1) Other IT (4) Audit/Compliance (2) IT security/Networks (4) IT Support/Technician (1) Specialist",
+    "hasJobs": true
+  },
+  {
+    "name": "ITclan BD",
+    "url": "https://itclanbd.com/careers",
+    "status": 403,
+    "textLength": 876,
+    "preview": "DNS points to prohibited IP | itclanbd.com | Cloudflare Please enable cookies. Error 1000 Ray ID: a520035a28069cba &bull; 2026-10-29 06:09:44 UTC DNS points to prohibited IP What happened? You've requested a page on a website (itclanbd.com) that is on the Cloudflare network. Unfortunately, it is res",
+    "hasJobs": true
+  }
+]
