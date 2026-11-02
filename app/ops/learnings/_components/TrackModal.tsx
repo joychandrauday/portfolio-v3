@@ -8,6 +8,7 @@ import {
   LEARN_DOMAINS,
   TRACK_COLORS,
 } from "@/lib/learn-templates";
+import { ROADMAPS, getRoadmapBySlug, roadmapToLearnTemplate } from "@/lib/roadmaps-data";
 import type { LearnTrack } from "./types";
 
 interface TrackModalProps {
@@ -34,6 +35,9 @@ export default function TrackModal({ open, track, onClose, onSaved }: TrackModal
   const [templateKey, setTemplateKey] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [importInput, setImportInput] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importSource, setImportSource] = useState("roadmap");
 
   useEffect(() => {
     if (!open) return;
@@ -81,6 +85,46 @@ export default function TrackModal({ open, track, onClose, onSaved }: TrackModal
       color: t.color,
       weeklyGoalMinutes: t.weeklyGoalMinutes,
     }));
+  };
+
+  const importFromRoadmap = async () => {
+    if (!importInput.trim()) {
+      setError("Please enter a roadmap URL from roadmap.sh or provide a roadmap slug");
+      return;
+    }
+
+    setImporting(true);
+    setError("");
+
+    try {
+      const slug = importInput.trim();
+      const roadmap = getRoadmapBySlug(slug);
+
+      if (!roadmap) {
+        setError(`Roadmap "${slug}" not found. Try one of: ${ROADMAPS.map(r => r.slug).join(", ")}`);
+        return;
+      }
+
+      const template = roadmapToLearnTemplate(roadmap);
+
+      setTemplateKey(template.key);
+      setForm((f) => ({
+        ...f,
+        title: template.title,
+        domain: template.domain,
+        goal: template.goal,
+        level: template.level,
+        color: template.color,
+        weeklyGoalMinutes: template.weeklyGoalMinutes,
+      }));
+
+      setImportInput("");
+      setImportSource("roadmap");
+    } catch (err) {
+      setError("Failed to import roadmap. Please check the URL and try again.");
+    } finally {
+      setImporting(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -185,6 +229,32 @@ export default function TrackModal({ open, track, onClose, onSaved }: TrackModal
                 h of planned work
               </p>
             )}
+          </div>
+        )}
+
+        {!isEdit && (
+          <div className="mt-3">
+            <label className={`${label} flex items-center gap-1.5 mb-1.5`}>Import from roadmap.sh</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={importInput}
+                onChange={(e) => setImportInput(e.target.value)}
+                placeholder="e.g., linux-roadmap"
+                className="flex-1 bg-bg border border-border rounded-lg px-2.5 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-accent"
+              />
+              <button
+                type="button"
+                onClick={importFromRoadmap}
+                disabled={importing || !importInput.trim()}
+                className="px-3 py-1.5 bg-bg-elevated border border-border rounded-lg text-xs font-mono text-text-muted hover:text-accent hover:border-accent/40 disabled:opacity-50 cursor-pointer"
+              >
+                {importing ? "Importing..." : "Import"}
+              </button>
+            </div>
+            <p className="mt-1 text-[10px] font-mono text-text-muted">
+              Try: linux-roadmap, react-nextjs-roadmap, system-design-roadmap
+            </p>
           </div>
         )}
 
