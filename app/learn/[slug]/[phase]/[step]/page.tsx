@@ -23,10 +23,15 @@ export default function StepDetail({
   const { slug, phase, step } = params;
 
   const roadmap = getRoadmapBySlug(slug);
-  const stepContent = roadmap
-    ? getStepBySlug(slug, phase, step)
-    : undefined;
+  if (!roadmap) {
+    return (
+      <div className="min-h-screen bg-bg text-text-primary flex items-center justify-center">
+        <p className="text-text-secondary">Roadmap not found</p>
+      </div>
+    );
+  }
 
+  const stepContent = getStepBySlug(slug, phase, step);
   if (!stepContent) {
     return (
       <div className="min-h-screen bg-bg text-text-primary flex items-center justify-center">
@@ -36,6 +41,10 @@ export default function StepDetail({
   }
 
   const phaseTitle = roadmap.phases.find((p) => p.slug === phase)?.title || phase;
+  const lang: "bn" | "en" = isBn ? "bn" : "en";
+
+  const title = isBn && stepContent.titleBn ? stepContent.titleBn : stepContent.title;
+  const description = isBn && stepContent.descriptionBn ? stepContent.descriptionBn : stepContent.description;
 
   return (
     <div className="min-h-screen bg-bg text-text-primary">
@@ -47,14 +56,14 @@ export default function StepDetail({
           </Link>
           <ChevronRight className="w-3 h-3" />
           <Link href={`/learn/${slug}`} className="hover:text-accent transition-colors">
-            {roadmap.title[isBn ? "bn" : "en"]}
+            {roadmap.title[lang]}
           </Link>
           <ChevronRight className="w-3 h-3" />
           <Link href={`/learn/${slug}/${phase}`} className="hover:text-accent transition-colors">
             {phaseTitle}
           </Link>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-text-primary">{stepContent.title[isBn ? "bn" : "en"] || stepContent.title}</span>
+          <span className="text-text-primary">{title}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -72,7 +81,7 @@ export default function StepDetail({
                   </div>
                   <div className="flex items-center justify-between">
                     <Link href={`/learn/${slug}`} className="text-xs text-text-muted hover:text-accent transition-colors">
-                      {roadmap.title[isBn ? "bn" : "en"]}
+                      {roadmap.title[lang]}
                     </Link>
                     <ChevronRight className="w-3 h-3 text-text-muted" />
                   </div>
@@ -83,7 +92,7 @@ export default function StepDetail({
                     <ChevronRight className="w-3 h-3 text-text-muted" />
                   </div>
                   <div className="text-xs text-accent font-medium pl-2 border-l-2 border-accent">
-                    {isBn ? "বর্তমান: " : "Current: "}{stepContent.title[isBn ? "bn" : "en"] || stepContent.title}
+                    {isBn ? "বর্তমান: " : "Current: "}{title}
                   </div>
                 </div>
               </div>
@@ -102,7 +111,8 @@ export default function StepDetail({
                   </div>
                 </div>
               </div>
-            </aside>
+            </div>
+          </aside>
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             <div className="flex items-center justify-between">
@@ -111,12 +121,12 @@ export default function StepDetail({
                   <ArrowLeft className="w-3.5 h-3.5" /> {isBn ? "ফেজে ফিরুন" : "Back to Phase"}
                 </Link>
                 <h1 className="text-2xl lg:text-3xl font-bold text-text-primary mb-2">
-                  {stepContent.title[isBn ? "bn" : "en"] || stepContent.title}
+                  {title}
                 </h1>
                 <div className="flex items-center gap-4 text-sm text-text-muted">
                   <span>{isBn ? "পর্ব: " : "Phase: "}{phaseTitle}</span>
                   <span>•</span>
-                  <span>{stepContent.title[isBn ? "bn" : "en"] || stepContent.title}</span>
+                  <span>{title}</span>
                 </div>
               </div>
             </div>
@@ -125,7 +135,7 @@ export default function StepDetail({
             <div className="bg-bg-surface border border-border rounded-lg p-6">
               <h2 className="text-lg font-semibold text-text-primary mb-3">Learning Objective</h2>
               <p className="text-text-secondary leading-relaxed">
-                {stepContent.description[isBn ? "bn" : "en"] || stepContent.description}
+                {description || stepContent.description}
               </p>
             </div>
 
@@ -197,7 +207,7 @@ export default function StepDetail({
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {isBn ? "আমার শেখার নোট" : "My Learning Notes"}
               </h2>
               <p className="text-text-secondary text-sm leading-relaxed bg-bg/50 p-4 rounded border border-border/50">
-                {stepContent.myNotes || stepContent.description[isBn ? "bn" : "en"] || stepContent.description}
+                {stepContent.myNotes || description}
               </p>
             </section>
 
