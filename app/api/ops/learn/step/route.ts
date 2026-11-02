@@ -1,18 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getRoadmapBySlug, getStepBySlug } from "@/lib/roadmaps-data";
 
-/**
- * GET /api/ops/learn/step/:slug/:phase/:step
- *
- * Returns a specific step with all its details.
- * Used by /learn/[slug]/[phase]/[step] page to dynamically load step content.
- */
+export const dynamic = 'force-dynamic';
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { slug: string; phase: string; step: string } }
-) {
-  const { slug, phase: phaseSlug, step: stepSlug } = params;
+/**
+ * GET /api/ops/learn/step?slug=...&phase=...&step=...
+ */
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const slug = searchParams.get('slug');
+  const phaseSlug = searchParams.get('phase');
+  const stepSlug = searchParams.get('step');
+
+  if (!slug || !phaseSlug || !stepSlug) {
+    return NextResponse.json({ error: "slug, phase, and step are required" }, { status: 400 });
+  }
 
   const roadmap = getRoadmapBySlug(slug);
   if (!roadmap) {

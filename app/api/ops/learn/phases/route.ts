@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server";
-import { getRoadmapBySlug, getRoadmapPhases, getPhaseBySlug } from "@/lib/roadmaps-data";
+import { NextRequest, NextResponse } from "next/server";
+import { getRoadmapBySlug, getRoadmapPhases } from "@/lib/roadmaps-data";
+
+export const dynamic = 'force-dynamic';
 
 /**
- * GET /api/ops/learn/phases/:slug
- *
- * Returns all phases for a specific roadmap.
- * Used by /learn/[slug] page to dynamically load phases.
+ * GET /api/ops/learn/phases?slug=...
  */
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const slug = searchParams.get('slug');
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { slug: string } }
-) {
-  const { slug } = params;
+  if (!slug) {
+    return NextResponse.json({ error: "slug is required" }, { status: 400 });
+  }
 
   const roadmap = getRoadmapBySlug(slug);
   if (!roadmap) {
