@@ -1,15 +1,105 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
-import { Home, ChevronRight, BookOpen, Clock, CheckCircle2, ArrowRight, Target } from "lucide-react";
+import { getRoadmapBySlug, roadmapToLearnTemplate } from "@/lib/roadmaps-data";
+import { Home, ChevronRight, BookOpen, Clock, CheckCircle2, ArrowRight, Target, RefreshCw } from "lucide-react";
+
+const LS_KEY = "portfolio_roadmap_tracks";
+
+type LocalTrack = {
+  slug: string;
+  title: string;
+  domain: string;
+  goal: string;
+  level: string;
+  color: string;
+  weeklyGoalMinutes: number;
+  modules: {
+    id: string;
+    title: string;
+    status: "todo" | "doing" | "done";
+    estimateMinutes: number;
+    resourceUrl: string | null;
+    position: number;
+    completedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+const loadTracks = (): Record<string, LocalTrack> => {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveTracks = (tracks: Record<string, LocalTrack>) => {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(tracks));
+  } catch {}
+};
 
 export default function RoadmapDetail({ params }: { params: { slug: string } }) {
   const { t, isBn } = useLanguage();
   const slug = params.slug;
-  
   const phases = getRoadmapPhases(slug, isBn);
+  const [tracked, setTracked] = useState<Record<string, LocalTrack>>({});
+  const [importing, setImporting] = useState(false);
+  const [importStatus, setImportStatus] = useState("");
+
+  useEffect(() => {
+    setTracked(loadTracks());
+  }, []);
+
+  const isTracked = Boolean(tracked[slug]);
+
+  const handleTrackLocally = () => {
+    setImporting(true);
+    setImportStatus("");
+    try {
+      const roadmap = getRoadmapBySlug(slug);
+      if (!roadmap) throw new Error("Roadmap not found");
+      const template = roadmapToLearnTemplate(roadmap);
+      const now = new Date().toISOString();
+      const track: LocalTrack = {
+        slug,
+        title: template.title,
+        domain: template.domain,
+        goal: template.goal,
+        level: template.level,
+        color: template.color,
+        weeklyGoalMinutes: template.weeklyGoalMinutes,
+        modules: template.modules.map((m, i) => ({
+          id: `local-${slug}-${i}`,
+          title: m.title,
+          status: "todo",
+          estimateMinutes: m.estimateMinutes,
+          resourceUrl: m.resourceUrl ?? null,
+          position: i,
+          completedAt: null,
+          createdAt: now,
+          updatedAt: now,
+        })),
+        createdAt: now,
+        updatedAt: now,
+      };
+      const next = { ...tracked, [slug]: track };
+      saveTracks(next);
+      setTracked(next);
+      setImportStatus(`Tracking “${template.title}” locally.`);
+    } catch (err: any) {
+      setImportStatus(err?.message || "Tracking failed");
+    } finally {
+      setImporting(false);
+    }
+  };
   const totalSteps = phases.reduce((acc, p) => acc + p.steps?.length || 0, 0);
 
   return (
@@ -72,6 +162,32 @@ export default function RoadmapDetail({ params }: { params: { slug: string } }) 
                 
                 <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-accent text-black rounded-lg font-medium text-sm hover:bg-accent/90 transition-all">
                   <Target className="w-4 h-4" /> {isBn ? "শুরু করুন" : "Start Learning"}
+                </button>
+
+                {importStatus && (
+                  <div className={`mt-3 p-3 rounded-lg text-[11px] font-mono border ${importStatus.startsWith("Tracking") ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-border bg-bg-surface/50 text-text-muted"}`}>
+                    {importStatus}
+                  </div>
+                )}
+
+                <button
+                  onClick={isTracked ? undefined : handleTrackLocally}
+                  disabled={importing || isTracked}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-border rounded-lg text-xs font-mono text-text-muted hover:bg-bg-elevated hover:text-text-primary transition-colors disabled:opacity-50"
+                >
+                  {importing ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" /> {isBn ? "ট্র্যাক করা হচ্ছে…" : "Tracking…"}
+                    </>
+                  ) : isTracked ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" /> {isBn ? "ট্র্যাক করা আছে" : "Tracking locally"}
+                    </>
+                  ) : (
+                    <>
+                      <BookOpen className="w-4 h-4" /> {isBn ? "স্থানীয়ভাবে ট্র্যাক করুন" : "Track locally"}
+                    </>
+                  )}
                 </button>
               </div>
               
