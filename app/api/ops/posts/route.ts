@@ -29,6 +29,10 @@ export async function GET(req: NextRequest) {
         readingTimeMinutes: true,
         published: true,
         publishedAt: true,
+        seoTitle: true,
+        seoDescription: true,
+        canonicalUrl: true,
+        ogImage: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -76,6 +80,10 @@ export async function POST(req: NextRequest) {
       readingTimeMinutes: Number(body.readingTimeMinutes || 3),
       published,
       publishedAt: published ? existing?.publishedAt ?? new Date() : null,
+      seoTitle: body.seoTitle || null,
+      seoDescription: body.seoDescription || null,
+      canonicalUrl: body.canonicalUrl || null,
+      ogImage: body.ogImage || body.coverImage || null,
     };
 
     const post = existing

@@ -18,6 +18,9 @@ import {
   PenTool,
   Mail,
   FolderGit2,
+  BookOpen,
+  Sparkles,
+  FolderArchive,
 } from "lucide-react";
 
 export default function RetroMasthead() {
@@ -153,11 +156,35 @@ export default function RetroMasthead() {
 
         <div className="flex items-center gap-4 text-xs font-mono shrink-0">
           <Link
+            href="/learn"
+            className="text-text-primary hover:text-accent font-medium flex items-center gap-1.5 group"
+          >
+            <BookOpen className="w-3.5 h-3.5 opacity-60 text-accent" />
+            <span>{isBn ? "রোডম্যাপ" : "Roadmaps"}</span>
+          </Link>
+          <span className="opacity-30">•</span>
+          <Link
+            href="/feed"
+            className="text-text-primary hover:text-accent font-medium flex items-center gap-1.5 group"
+          >
+            <Sparkles className="w-3.5 h-3.5 opacity-60 text-accent" />
+            <span>{isBn ? "ফিড" : "Feed"}</span>
+          </Link>
+          <span className="opacity-30">•</span>
+          <Link
+            href="/documents"
+            className="text-text-primary hover:text-accent font-medium flex items-center gap-1.5 group"
+          >
+            <FolderArchive className="w-3.5 h-3.5 opacity-60" />
+            <span>{isBn ? "ডকুমেন্টস" : "Docs"}</span>
+          </Link>
+          <span className="opacity-30">•</span>
+          <Link
             href="/projects"
             className="text-text-primary hover:text-accent font-medium flex items-center gap-1.5 group"
           >
             <FolderGit2 className="w-3.5 h-3.5 opacity-60" />
-            <span>{isBn ? "প্রকল্প আর্কাইভ" : "Projects Archive"}</span>
+            <span>{isBn ? "প্রকল্প" : "Projects"}</span>
             <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
           <span className="opacity-30">•</span>
@@ -166,7 +193,7 @@ export default function RetroMasthead() {
             className="text-text-primary hover:text-accent font-medium flex items-center gap-1.5 group"
           >
             <FileText className="w-3.5 h-3.5 opacity-60" />
-            <span>{isBn ? "সিভি / রেজ্যুমে" : "Curriculum Vitae"}</span>
+            <span>{isBn ? "সিভি" : "CV"}</span>
             <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
         </div>

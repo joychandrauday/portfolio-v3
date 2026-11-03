@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import MarkdownPreview from "@/components/MarkdownPreview";
+import RichTextEditor from "@/components/ops/RichTextEditor";
 import {
   FileText,
   Plus,
@@ -22,6 +23,9 @@ import {
   Linkedin,
   Twitter,
   Code,
+  Globe,
+  Search,
+  Image as ImageIcon,
 } from "lucide-react";
 
 interface PostItem {
@@ -38,12 +42,16 @@ interface PostItem {
   published: boolean;
   publishedAt: string | null;
   coverImage?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  canonicalUrl?: string | null;
+  ogImage?: string | null;
 }
 
 export default function OpsPostsPage() {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"en" | "bn">("en");
+  const [activeTab, setActiveTab] = useState<"en" | "bn" | "seo">("en");
   const [isEditing, setIsEditing] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -68,6 +76,11 @@ export default function OpsPostsPage() {
     readingTimeMinutes: 4,
     published: false,
     publishedAt: null,
+    coverImage: "",
+    seoTitle: "",
+    seoDescription: "",
+    canonicalUrl: "",
+    ogImage: "",
   });
 
   const [tagInput, setTagInput] = useState("");
@@ -102,6 +115,11 @@ export default function OpsPostsPage() {
       readingTimeMinutes: 3,
       published: false,
       publishedAt: null,
+      coverImage: "",
+      seoTitle: "",
+      seoDescription: "",
+      canonicalUrl: "",
+      ogImage: "",
     });
     setIsEditing(true);
     setActiveTab("en");
@@ -296,6 +314,16 @@ export default function OpsPostsPage() {
                 >
                   বাংলা (Bengali)
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("seo")}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded transition-colors ${
+                    activeTab === "seo" ? "bg-accent text-black font-bold" : "text-text-muted hover:text-text-primary"
+                  }`}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>SEO &amp; Social</span>
+                </button>
               </div>
             </div>
 
@@ -370,11 +398,49 @@ export default function OpsPostsPage() {
               </div>
             </div>
 
-            {/* Language Content fields */}
+            {/* Thumbnail / Cover Image row */}
+            <div className="p-3 bg-bg border border-border rounded-lg space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-mono text-text-muted flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-accent" />
+                  <span>Cover Image / Thumbnail URL (Recommended: 1200×630)</span>
+                </label>
+                {currentPost.coverImage && (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPost({ ...currentPost, coverImage: "" })}
+                    className="text-[10px] font-mono text-rose-400 hover:underline cursor-pointer"
+                  >
+                    Remove Image
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={currentPost.coverImage || ""}
+                  onChange={(e) => setCurrentPost({ ...currentPost, coverImage: e.target.value })}
+                  placeholder="https://images.unsplash.com/... or /images/..."
+                  className="flex-1 bg-bg-surface border border-border rounded-lg px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-accent"
+                />
+              </div>
+              {currentPost.coverImage && (
+                <div className="mt-2 relative h-36 max-w-sm rounded-lg overflow-hidden border border-border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={currentPost.coverImage}
+                    alt="Cover preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Language Content or SEO fields */}
             {activeTab === "en" ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-mono text-text-muted mb-1">Title (English)</label>
+                  <label className="block text-xs font-mono text-text-muted mb-1">Title (English) *</label>
                   <input
                     type="text"
                     value={currentPost.titleEn}
@@ -399,37 +465,18 @@ export default function OpsPostsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-mono text-text-muted">
-                      Content Markdown (English)
+                      Article Body (Rich Text Editor)
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPreview(!showPreview)}
-                      className="flex items-center gap-1 text-[11px] font-mono text-accent hover:underline cursor-pointer"
-                    >
-                      <Eye className="w-3 h-3" />
-                      <span>{showPreview ? "Hide Preview" : "Preview .md Code"}</span>
-                    </button>
+                    <span className="text-[10px] font-mono text-accent">WYSIWYG Mode</span>
                   </div>
-                  <textarea
-                    rows={12}
-                    value={currentPost.contentEn}
-                    onChange={(e) => setCurrentPost({ ...currentPost, contentEn: e.target.value })}
-                    placeholder="Write article in standard markdown..."
-                    className="w-full bg-bg border border-border rounded-lg p-3 text-xs font-mono text-text-primary focus:outline-none focus:border-accent"
+                  <RichTextEditor
+                    content={currentPost.contentEn}
+                    onChange={(html) => setCurrentPost({ ...currentPost, contentEn: html })}
+                    placeholder="Compose your engineering essay with headings, code blocks, bullet points, and media..."
                   />
-                  {showPreview && (
-                    <div className="mt-3">
-                      <MarkdownPreview
-                        content={currentPost.contentEn || "*(No English markdown content entered yet)*"}
-                        title={`Preview: ${currentPost.titleEn || "English Article"}`}
-                        filename={`${currentPost.slug || "article"}-en.md`}
-                        defaultMode="split"
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
-            ) : (
+            ) : activeTab === "bn" ? (
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-mono text-text-muted mb-1">শিরোনাম (বাংলা)</label>
@@ -456,34 +503,114 @@ export default function OpsPostsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-mono text-text-muted">
-                      সম্পূর্ণ বিবরণ (বাংলায় মার্কডাউন)
+                      সম্পূর্ণ বিবরণ (বাংলা রিচ টেক্সট এডিটর)
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPreview(!showPreview)}
-                      className="flex items-center gap-1 text-[11px] font-mono text-accent hover:underline cursor-pointer"
-                    >
-                      <Eye className="w-3 h-3" />
-                      <span>{showPreview ? "প্রিভিউ লুকান" : "প্রিভিউ .md কোড"}</span>
-                    </button>
+                    <span className="text-[10px] font-mono text-accent">WYSIWYG মোড</span>
                   </div>
-                  <textarea
-                    rows={12}
-                    value={currentPost.contentBn}
-                    onChange={(e) => setCurrentPost({ ...currentPost, contentBn: e.target.value })}
-                    placeholder="বাংলায় বিস্তারিত লিখুন..."
-                    className="w-full bg-bg border border-border rounded-lg p-3 text-xs font-bengali text-text-primary focus:outline-none focus:border-accent"
+                  <RichTextEditor
+                    content={currentPost.contentBn}
+                    onChange={(html) => setCurrentPost({ ...currentPost, contentBn: html })}
+                    placeholder="বাংলায় সম্পূর্ণ বিবরণ লিখুন..."
                   />
-                  {showPreview && (
-                    <div className="mt-3">
-                      <MarkdownPreview
-                        content={currentPost.contentBn || "*(কোনো বাংলা কন্টেন্ট যুক্ত করা হয়নি)*"}
-                        title={`প্রিভিউ: ${currentPost.titleBn || "বাংলা নিবন্ধ"}`}
-                        filename={`${currentPost.slug || "article"}-bn.md`}
-                        defaultMode="split"
+                </div>
+              </div>
+            ) : (
+              /* SEO & Social Share Suite */
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-mono text-text-muted mb-1">
+                        Meta Title (SEO Title)
+                      </label>
+                      <input
+                        type="text"
+                        value={currentPost.seoTitle || ""}
+                        onChange={(e) => setCurrentPost({ ...currentPost, seoTitle: e.target.value })}
+                        placeholder={currentPost.titleEn || "Custom SEO Title..."}
+                        className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-xs font-mono text-text-primary focus:outline-none focus:border-accent"
+                      />
+                      <span className="text-[10px] text-text-muted font-mono">
+                        {(currentPost.seoTitle || currentPost.titleEn).length} / 60 characters
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-text-muted mb-1">
+                        Meta Description (Search Snippet)
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={currentPost.seoDescription || ""}
+                        onChange={(e) => setCurrentPost({ ...currentPost, seoDescription: e.target.value })}
+                        placeholder={currentPost.excerptEn || "Concise overview for search engines..."}
+                        className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-xs font-mono text-text-primary focus:outline-none focus:border-accent"
+                      />
+                      <span className="text-[10px] text-text-muted font-mono">
+                        {(currentPost.seoDescription || currentPost.excerptEn).length} / 160 characters
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-text-muted mb-1">Canonical URL</label>
+                      <input
+                        type="url"
+                        value={currentPost.canonicalUrl || ""}
+                        onChange={(e) => setCurrentPost({ ...currentPost, canonicalUrl: e.target.value })}
+                        placeholder={`https://joychandrauday.vercel.app/blog/${currentPost.slug || "article"}`}
+                        className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-xs font-mono text-text-primary focus:outline-none focus:border-accent"
                       />
                     </div>
-                  )}
+                  </div>
+
+                  {/* Live SERP & Social Previews */}
+                  <div className="space-y-4">
+                    {/* Google Search Result Preview */}
+                    <div className="p-4 bg-bg border border-border rounded-xl space-y-1 font-sans">
+                      <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider block">
+                        [ Google Search Preview ]
+                      </span>
+                      <div className="text-xs text-text-muted font-mono truncate">
+                        https://joychandrauday.vercel.app &rsaquo; blog &rsaquo; {currentPost.slug || "article-slug"}
+                      </div>
+                      <div className="text-sm sm:text-base font-medium text-blue-400 hover:underline cursor-pointer truncate">
+                        {currentPost.seoTitle || currentPost.titleEn || "Article Title"} — Joy Chandra Uday
+                      </div>
+                      <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed">
+                        {currentPost.seoDescription || currentPost.excerptEn || "Article excerpt will appear here in search engine results snippets."}
+                      </p>
+                    </div>
+
+                    {/* Social Share Card Preview */}
+                    <div className="p-4 bg-bg border border-border rounded-xl space-y-2">
+                      <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider block">
+                        [ Twitter &amp; LinkedIn Social Card ]
+                      </span>
+                      <div className="border border-border/80 rounded-lg overflow-hidden bg-bg-surface">
+                        {currentPost.coverImage ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={currentPost.coverImage}
+                            alt="Social preview"
+                            className="w-full h-28 object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-20 bg-bg-elevated flex items-center justify-center text-xs font-mono text-text-muted">
+                            No Cover Image Set
+                          </div>
+                        )}
+                        <div className="p-2.5 space-y-1">
+                          <span className="text-[10px] font-mono text-text-muted uppercase block">joychandrauday.vercel.app</span>
+                          <div className="text-xs font-bold text-text-primary truncate">
+                            {currentPost.titleEn || "Article Headline"}
+                          </div>
+                          <p className="text-[11px] text-text-muted line-clamp-1">
+                            {currentPost.excerptEn || "Article summary..."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

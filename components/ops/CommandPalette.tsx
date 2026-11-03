@@ -18,6 +18,8 @@ import {
   Plus,
   ArrowRight,
   X,
+  FolderArchive,
+  Flame,
 } from "lucide-react";
 
 interface CommandItem {
@@ -107,6 +109,28 @@ export default function CommandPalette({
       icon: BrainCircuit,
       action: () => {
         router.push("/ops/learnings");
+        onClose();
+      },
+    },
+    {
+      id: "nav-docs",
+      category: "Navigation",
+      title: "Digital Documents Hub",
+      subtitle: "Folder-based document manager, certificates, resumes, RFCs",
+      icon: FolderArchive,
+      action: () => {
+        router.push("/ops/documents");
+        onClose();
+      },
+    },
+    {
+      id: "nav-feed",
+      category: "Navigation",
+      title: "Micro-Insights Feed Curator",
+      subtitle: "Reels-style snap-scroll micro-tutorials and hacks",
+      icon: Flame,
+      action: () => {
+        router.push("/ops/feed");
         onClose();
       },
     },

@@ -19,6 +19,8 @@ import {
   X,
   Sparkles,
   Command,
+  FolderArchive,
+  Flame,
 } from "lucide-react";
 
 export default function OpsLayout({ children }: { children: React.ReactNode }) {
@@ -116,6 +118,8 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
     { label: "Executive Hub", href: "/ops", icon: LayoutDashboard },
     { label: "AI Copilot Studio", href: "/ops/ai", icon: Sparkles },
     { label: "Bilingual Blog", href: "/ops/posts", icon: FileText },
+    { label: "Micro-Insights Feed", href: "/ops/feed", icon: Flame },
+    { label: "Digital Documents", href: "/ops/documents", icon: FolderArchive },
     { label: "Job Hunting CRM", href: "/ops/jobs", icon: Briefcase },
     { label: "Project Showcase", href: "/ops/projects", icon: Layers },
     { label: "Learning Flow", href: "/ops/learnings", icon: BrainCircuit },

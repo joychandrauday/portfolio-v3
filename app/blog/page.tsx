@@ -16,6 +16,7 @@ interface PostItem {
   excerptBn: string;
   readingTimeMinutes: number;
   publishedAt: string | null;
+  coverImage?: string | null;
   tags?: string[];
 }
 
@@ -103,28 +104,46 @@ export default function BlogPage() {
                 <Link
                   key={post.id}
                   href={`/blog/${post.slug}`}
-                  className="py-5 first:pt-2 last:pb-2 block space-y-1.5 group"
+                  className="py-6 first:pt-2 last:pb-2 block space-y-3 group"
                 >
-                  <div className="flex items-baseline justify-between gap-4">
-                    <h2
-                      className={`text-base font-medium text-text-primary group-hover:text-accent transition-colors ${
-                        isBn ? "font-bengali text-lg" : "font-sans"
-                      }`}
-                    >
-                      {title}
-                    </h2>
-                    <span className="font-mono text-xs text-text-muted shrink-0">
-                      {formatPostDate(post.publishedAt) || `${post.readingTimeMinutes} min`}
-                    </span>
-                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-baseline justify-between gap-4">
+                        <h2
+                          className={`text-lg font-bold text-text-primary group-hover:text-accent transition-colors ${
+                            isBn ? "font-bengali text-xl" : "font-serif"
+                          }`}
+                        >
+                          {title}
+                        </h2>
+                      </div>
 
-                  <p
-                    className={`text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-2 ${
-                      isBn ? "font-bengali text-sm text-text-primary/75" : "font-sans"
-                    }`}
-                  >
-                    {excerpt}
-                  </p>
+                      <p
+                        className={`text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-2 ${
+                          isBn ? "font-bengali text-sm text-text-primary/75" : "font-sans"
+                        }`}
+                      >
+                        {excerpt}
+                      </p>
+
+                      <div className="flex items-center gap-3 pt-1 font-mono text-xs text-text-muted">
+                        <span>{formatPostDate(post.publishedAt) || `${post.readingTimeMinutes} min`}</span>
+                        <span>•</span>
+                        <span>{post.readingTimeMinutes} min read</span>
+                      </div>
+                    </div>
+
+                    {post.coverImage && (
+                      <div className="w-full sm:w-28 sm:h-20 h-36 rounded-lg overflow-hidden border border-border shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={post.coverImage}
+                          alt={title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </Link>
               );
             })

@@ -32,9 +32,11 @@ function dateOrNull(value: unknown): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const isAuthed = await verifyOpsSession();
-  if (!isAuthed) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isAuthed) {
+    return NextResponse.json({ authenticated: false, tracks: [], sessions: [] });
+  }
 
   try {
     const [tracks, sessions] = await Promise.all([
@@ -340,6 +342,96 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ success: true, added: toCreate.length });
+      }
+
+      /* ── Sync Roadmap Step (from /learn) ───────────────────────── */
+      case "sync_roadmap_step": {
+        const roadmapSlug = str(body.roadmapSlug);
+        const roadmapTitle = str(body.roadmapTitle, roadmapSlug || "Roadmap");
+        const stepSlug = str(body.stepSlug);
+        const stepTitle = str(body.stepTitle, stepSlug);
+        const status = MODULE_STATUSES.has(body.status) ? (body.status as "todo" | "doing" | "done") : "todo";
+        const estimateMinutes = int(body.estimateMinutes, 30);
+        const resourceUrl = body.resourceUrl ? str(body.resourceUrl) : null;
+
+        if (!roadmapSlug || !stepSlug) {
+          return NextResponse.json({ error: "roadmapSlug and stepSlug are required" }, { status: 400 });
+        }
+
+        // Find or create track
+        let track = await prisma.learningTrack.findFirst({
+          where: {
+            OR: [
+              { title: { equals: roadmapTitle, mode: "insensitive" } },
+              { goal: { contains: roadmapSlug, mode: "insensitive" } },
+            ],
+          },
+        });
+
+        if (!track) {
+          track = await prisma.learningTrack.create({
+            data: {
+              title: roadmapTitle,
+              domain: "Roadmap",
+              goal: `Roadmap track: ${roadmapSlug}`,
+              level: "intermediate",
+              status: "active",
+              color: "#FFB44B",
+              weeklyGoalMinutes: 300,
+            },
+          });
+        }
+
+        // Find or create module for this step
+        let moduleItem = await prisma.learningModule.findFirst({
+          where: {
+            trackId: track.id,
+            OR: [
+              { title: { equals: stepTitle, mode: "insensitive" } },
+              { notes: { contains: stepSlug, mode: "insensitive" } },
+            ],
+          },
+        });
+
+        const completedAt = status === "done" ? new Date() : null;
+
+        if (moduleItem) {
+          moduleItem = await prisma.learningModule.update({
+            where: { id: moduleItem.id },
+            data: {
+              status,
+              completedAt,
+              notes: moduleItem.notes || `Step: ${stepSlug}`,
+            },
+          });
+        } else {
+          const maxPos = await prisma.learningModule.aggregate({
+            where: { trackId: track.id },
+            _max: { position: true },
+          });
+          const nextPos = (maxPos._max.position ?? -1) + 1;
+
+          moduleItem = await prisma.learningModule.create({
+            data: {
+              trackId: track.id,
+              title: stepTitle,
+              status,
+              estimateMinutes,
+              resourceUrl,
+              position: nextPos,
+              completedAt,
+              notes: `Step: ${stepSlug}`,
+            },
+          });
+        }
+
+        return NextResponse.json({
+          success: true,
+          trackId: track.id,
+          moduleId: moduleItem.id,
+          status: moduleItem.status,
+          completedAt: moduleItem.completedAt,
+        });
       }
 
       default:

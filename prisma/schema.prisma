@@ -25,6 +25,10 @@ model Post {
   readingTimeMinutes   Int      @map("reading_time_minutes") @default(3)
   published            Boolean  @default(false)
   publishedAt          DateTime? @map("published_at")
+  seoTitle             String?  @map("seo_title")
+  seoDescription       String?  @map("seo_description")
+  canonicalUrl         String?  @map("canonical_url")
+  ogImage              String?  @map("og_image")
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
 
@@ -296,4 +300,73 @@ model AppSetting {
   updatedAt DateTime? @updatedAt @map("updated_at")
 
   @@map("app_settings")
+}
+
+// ── Digital Documents & Folders ───────────────────────────────────────
+model DocumentFolder {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  icon        String     @default("folder")
+  color       String     @default("#FFB44B")
+  description String?
+  sortOrder   Int        @default(0) @map("sort_order")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  documents   Document[]
+
+  @@index([sortOrder])
+  @@map("document_folders")
+}
+
+model Document {
+  id          String          @id @default(cuid())
+  title       String
+  description String?
+  folderId    String?         @map("folder_id")
+  fileType    String          @default("pdf") @map("file_type") // pdf, link, markdown, code, image
+  fileUrl     String?         @map("file_url")
+  fileSize    String?         @map("file_size")
+  content     String?         // Direct text or markdown content
+  tags        String[]        @default([])
+  isPublic    Boolean         @default(true) @map("is_public")
+  pinned      Boolean         @default(false)
+  issuedAt    DateTime?       @map("issued_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  folder      DocumentFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  @@index([folderId])
+  @@index([isPublic])
+  @@index([pinned])
+  @@index([createdAt])
+  @@map("documents")
+}
+
+// ── Micro-Insights Snap Feed ──────────────────────────────────────────
+model InsightItem {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  title          String
+  topic          String    @default("dev-hacks") // linux, ai, system-design, dev-hacks, money, security
+  category       String    @default("ENGINEERING")
+  summary        String?
+  content        String
+  codeSnippet    String?   @map("code_snippet")
+  commandSnippet String?   @map("command_snippet")
+  bgTheme        String    @default("cyber-mesh") @map("bg_theme")
+  tags           String[]  @default([])
+  isPublished    Boolean   @default(true) @map("is_published")
+  likesCount     Int       @default(0) @map("likes_count")
+  sortOrder      Int       @default(0) @map("sort_order")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([topic])
+  @@index([isPublished])
+  @@index([sortOrder])
+  @@index([createdAt])
+  @@map("insight_items")
 }

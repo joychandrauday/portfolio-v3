@@ -73,6 +73,18 @@ export default function RetroColophon() {
               <span>Engineering Writing &amp; Dispatches</span>
               <ArrowUpRight className="w-3 h-3 opacity-60" />
             </Link>
+            <Link href="/learn" className="hover:text-text-primary transition-colors flex items-center gap-1">
+              <span>Roadmaps &amp; Curated Paths</span>
+              <ArrowUpRight className="w-3 h-3 opacity-60 text-accent" />
+            </Link>
+            <Link href="/feed" className="hover:text-text-primary transition-colors flex items-center gap-1">
+              <span>Micro-Insights Snap Feed</span>
+              <ArrowUpRight className="w-3 h-3 opacity-60 text-accent" />
+            </Link>
+            <Link href="/documents" className="hover:text-text-primary transition-colors flex items-center gap-1">
+              <span>Digital Documents &amp; Credentials</span>
+              <ArrowUpRight className="w-3 h-3 opacity-60" />
+            </Link>
             <Link href="/resume" className="hover:text-text-primary transition-colors flex items-center gap-1">
               <span>Curriculum Vitae</span>
               <ArrowUpRight className="w-3 h-3 opacity-60" />

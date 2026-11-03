@@ -15,6 +15,7 @@ interface PostItem {
   excerptBn: string;
   readingTimeMinutes: number;
   publishedAt: string | null;
+  coverImage?: string | null;
 }
 
 export default function RetroDispatches() {
@@ -74,19 +75,34 @@ export default function RetroDispatches() {
                 </span>
               </div>
 
-              <h4 className="font-serif text-xl sm:text-2xl font-semibold text-text-primary group-hover:text-accent transition-colors">
-                <Link href={`/blog/${post.slug}`}>
-                  {isBn && post.titleBn ? post.titleBn : post.titleEn}
-                </Link>
-              </h4>
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div className="space-y-2 flex-1 min-w-0">
+                  <h4 className="font-serif text-xl sm:text-2xl font-semibold text-text-primary group-hover:text-accent transition-colors">
+                    <Link href={`/blog/${post.slug}`}>
+                      {isBn && post.titleBn ? post.titleBn : post.titleEn}
+                    </Link>
+                  </h4>
 
-              <p
-                className={`text-sm sm:text-base text-text-secondary leading-relaxed font-serif ${
-                  isBn ? "font-bengali text-base" : ""
-                }`}
-              >
-                {isBn && post.excerptBn ? post.excerptBn : post.excerptEn}
-              </p>
+                  <p
+                    className={`text-sm sm:text-base text-text-secondary leading-relaxed font-serif ${
+                      isBn ? "font-bengali text-base" : ""
+                    }`}
+                  >
+                    {isBn && post.excerptBn ? post.excerptBn : post.excerptEn}
+                  </p>
+                </div>
+
+                {post.coverImage && (
+                  <div className="w-full sm:w-28 sm:h-20 h-36 rounded overflow-hidden border border-border shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={post.coverImage}
+                      alt={post.titleEn}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+              </div>
 
               <div className="pt-2">
                 <Link

@@ -370,6 +370,118 @@ async function main() {
   }
   console.log(`✔ Seeded ${jobs.length} job applications.`);
 
+  // ── Digital Document Folders & Documents ────────────────────────────
+  const certFolder = await prisma.documentFolder.upsert({
+    where: { slug: "certifications" },
+    update: {},
+    create: {
+      name: "Certifications & Credentials",
+      slug: "certifications",
+      icon: "file-badge",
+      color: "#10B981",
+      description: "Verified engineering credentials and professional certifications.",
+      sortOrder: 1,
+    },
+  });
+
+  const resumeFolder = await prisma.documentFolder.upsert({
+    where: { slug: "resume-and-bio" },
+    update: {},
+    create: {
+      name: "Resume & Professional Bio",
+      slug: "resume-and-bio",
+      icon: "file-text",
+      color: "#FFB44B",
+      description: "Current curriculum vitae editions and executive summaries.",
+      sortOrder: 2,
+    },
+  });
+
+  const rfcFolder = await prisma.documentFolder.upsert({
+    where: { slug: "architecture-rfcs" },
+    update: {},
+    create: {
+      name: "Architecture Specs & RFCs",
+      slug: "architecture-rfcs",
+      icon: "cpu",
+      color: "#6366F1",
+      description: "Distributed systems RFCs, invariants, and design documents.",
+      sortOrder: 3,
+    },
+  });
+
+  const cheatFolder = await prisma.documentFolder.upsert({
+    where: { slug: "cheatsheets" },
+    update: {},
+    create: {
+      name: "Cheatsheets & Guides",
+      slug: "cheatsheets",
+      icon: "terminal",
+      color: "#3B82F6",
+      description: "Quick reference guides for Linux, PostgreSQL, and Docker.",
+      sortOrder: 4,
+    },
+  });
+
+  const initialDocs = [
+    {
+      title: "Joy Chandra Uday — Master Curriculum Vitae (2026)",
+      description: "Complete engineering dossier highlighting distributed systems, append-only ledgers, and platform architecture.",
+      folderId: resumeFolder.id,
+      fileType: "pdf",
+      fileUrl: "/resume",
+      fileSize: "2.4 MB · PDF",
+      tags: ["Resume", "CV", "Software Engineer"],
+      isPublic: true,
+      pinned: true,
+      issuedAt: new Date("2026-10-01"),
+    },
+    {
+      title: "AWS Certified Solutions Architect Associate",
+      description: "Architecting highly available, cost-efficient, fault-tolerant distributed systems on AWS.",
+      folderId: certFolder.id,
+      fileType: "pdf",
+      fileUrl: "https://aws.amazon.com/certification/",
+      fileSize: "Credential ID: AWS-849204",
+      tags: ["AWS", "Cloud", "Architecture"],
+      isPublic: true,
+      pinned: true,
+      issuedAt: new Date("2025-11-15"),
+    },
+    {
+      title: "RFC 001: Append-Only Ledger & Concurrency Correctness",
+      description: "Design specification for StockFlow's transaction lock model and double-spending prevention.",
+      folderId: rfcFolder.id,
+      fileType: "markdown",
+      content: "# RFC 001: Append-Only Ledger Invariants\n\n1. State is never mutated in-place.\n2. OnHand balance is computed as onHand = Σ movements.\n3. Row locks use SELECT ... FOR UPDATE within strict ACID transaction boundaries.",
+      fileSize: "RFC Spec · Markdown",
+      tags: ["Distributed Systems", "RFC", "PostgreSQL"],
+      isPublic: true,
+      pinned: false,
+      issuedAt: new Date("2026-05-10"),
+    },
+    {
+      title: "Linux & Bash Production Cheatsheet",
+      description: "Curated POSIX-compliant terminal one-liners, process management, and networking diagnostics.",
+      folderId: cheatFolder.id,
+      fileType: "code",
+      content: "# Find and batch process without forking per file:\nfind . -type f -name '*.log' -exec rm {} +\n\n# Real-time socket connections:\nss -tulpn\n\n# Memory footprint by process:\nps aux --sort=-%mem | head -n 10",
+      fileSize: "Terminal Guide",
+      tags: ["Linux", "Bash", "CLI"],
+      isPublic: true,
+      pinned: false,
+      issuedAt: new Date("2026-08-20"),
+    },
+  ];
+
+  for (const doc of initialDocs) {
+    const existing = await prisma.document.findFirst({ where: { title: doc.title } });
+    if (!existing) {
+      await prisma.document.create({ data: doc });
+    }
+  }
+  console.log(`✔ Seeded digital document folders & documents.`);
+
   console.log("\n🌱 All seeding complete!");
 }
 
