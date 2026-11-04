@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyOpsSession } from "@/lib/auth";
+import { staticPosts } from "@/lib/posts-static";
 
 export async function GET(req: NextRequest) {
   const isAuthed = await verifyOpsSession();
@@ -38,6 +39,10 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    if (posts.length === 0 && publicOnly) {
+      return NextResponse.json(staticPosts);
+    }
+
     return NextResponse.json(posts.map((p) => ({
       ...p,
       tags: p.tags || [],
@@ -45,6 +50,9 @@ export async function GET(req: NextRequest) {
     })));
   } catch (err) {
     console.error("[api/ops/posts] read failed:", err);
+    if (publicOnly) {
+      return NextResponse.json(staticPosts, { headers: { "x-db-status": "fallback" } });
+    }
     return NextResponse.json([], { headers: { "x-db-status": "offline" } });
   }
 }

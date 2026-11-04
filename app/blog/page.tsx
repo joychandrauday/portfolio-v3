@@ -5,7 +5,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import { useLanguage } from "@/components/LanguageProvider";
 import { ArrowLeft, Search } from "lucide-react";
-import { staticPosts, formatPostMonth } from "@/lib/posts-static";
+import { formatPostMonth } from "@/lib/posts-static";
+
 
 interface PostItem {
   id: string;
@@ -22,9 +23,17 @@ interface PostItem {
 
 const formatPostDate = formatPostMonth;
 
+
+
+
+
+
+
+
+
 export default function BlogPage() {
   const { isBn } = useLanguage();
-  const [posts, setPosts] = useState<PostItem[]>(staticPosts);
+  const [posts, setPosts] = useState<PostItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -85,7 +94,7 @@ export default function BlogPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search essays by title or concept..."
+
             className="w-full bg-bg-surface border border-border focus:border-text-primary rounded-lg pl-8 pr-3 py-1.5 text-xs font-sans text-text-primary placeholder:text-text-muted/60 focus:outline-none transition-colors"
           />
         </div>

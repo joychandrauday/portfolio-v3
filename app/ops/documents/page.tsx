@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import useSWR from "swr";
 import {
   FolderArchive,
   Folder,
@@ -55,10 +56,38 @@ interface DocumentItem {
 }
 
 export default function OpsDocumentsPage() {
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Check admin session
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/ops/auth');
+        const data = await res.json();
+        setIsAuthed(Boolean(data?.authenticated));
+      } catch (e) {
+        console.error('Auth check failed', e);
+        setIsAuthed(false);
+      } finally {
+        setAuthLoading(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
   const [folders, setFolders] = useState<DocumentFolder[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input to reduce re-renders
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(searchQuery), 200);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [selectedFolderId, setSelectedFolderId] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
 
@@ -93,21 +122,32 @@ export default function OpsDocumentsPage() {
   });
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
 
-  // Fetch documents and folders
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/ops/documents");
-      const data = await res.json();
-      if (Array.isArray(data.folders)) setFolders(data.folders);
-      if (Array.isArray(data.documents)) setDocuments(data.documents);
-    } catch (err) {
-      console.error("Failed to load documents", err);
-    } finally {
-      setLoading(false);
-    }
+  // SWR hook for fetching folders and documents
+  const fetcher = async (url: string) => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch');
+    return res.json();
   };
 
+  const { data, error, isLoading, mutate: mutateDocs } = useSWR('/api/ops/documents', fetcher, { fallbackData: { folders: [], documents: [] } });
+
+  // Sync SWR data to local state
+  useEffect(() => {
+    if (data) {
+      setFolders(data.folders || []);
+      setDocuments(data.documents || []);
+    }
+  }, [data]);
+
+  // Update loading state based on SWR
+  useEffect(() => {
+    setLoading(isLoading);
+  }, [isLoading]);
+
+  // Refresh data manually when needed
+  const fetchData = async () => {
+    await mutateDocs();
+  };
   useEffect(() => {
     fetchData();
   }, []);
@@ -115,7 +155,7 @@ export default function OpsDocumentsPage() {
   // Filter documents
   const filteredDocs = useMemo(() => {
     return documents.filter((doc) => {
-      const q = searchQuery.toLowerCase();
+      const q = debouncedSearch.toLowerCase();
       const matchSearch =
         doc.title.toLowerCase().includes(q) ||
         (doc.description && doc.description.toLowerCase().includes(q)) ||
@@ -130,7 +170,7 @@ export default function OpsDocumentsPage() {
 
       return matchSearch && matchFolder && matchType;
     });
-  }, [documents, searchQuery, selectedFolderId, selectedType]);
+  }, [documents, debouncedSearch, selectedFolderId, selectedType]);
 
   // Counts
   const publicCount = documents.filter((d) => d.isPublic).length;
@@ -313,6 +353,23 @@ export default function OpsDocumentsPage() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-text-muted">
+        Loading authentication…
+      </div>
+    );
+  }
+
+  if (!isAuthed) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center text-text-muted">
+        <p>Access denied. This section is for admin only.</p>
+        <a href="/ops/login" className="text-accent underline">Login to Ops</a>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 font-sans">
       {/* Header telemetry */}
@@ -403,7 +460,24 @@ export default function OpsDocumentsPage() {
                 const count = documents.filter((d) => d.folderId === folder.id).length;
                 const isSelected = selectedFolderId === folder.id;
 
-                return (
+                if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-text-muted">
+        Loading authentication…
+      </div>
+    );
+  }
+
+  if (!isAuthed) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center text-text-muted">
+        <p>Access denied. This section is for admin only.</p>
+        <a href="/ops/login" className="text-accent underline">Login to Ops</a>
+      </div>
+    );
+  }
+
+  return (
                   <div
                     key={folder.id}
                     className={`group flex items-center justify-between px-3 py-2 rounded-lg text-xs font-mono transition-colors cursor-pointer border ${
@@ -519,7 +593,24 @@ export default function OpsDocumentsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {filteredDocs.map((doc) => {
-                return (
+                if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-text-muted">
+        Loading authentication…
+      </div>
+    );
+  }
+
+  if (!isAuthed) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-center text-text-muted">
+        <p>Access denied. This section is for admin only.</p>
+        <a href="/ops/login" className="text-accent underline">Login to Ops</a>
+      </div>
+    );
+  }
+
+  return (
                   <div
                     key={doc.id}
                     className="p-4 bg-bg-surface border border-border hover:border-text-primary/40 rounded-xl space-y-3 transition-all relative group flex flex-col justify-between"
