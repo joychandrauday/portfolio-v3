@@ -403,9 +403,19 @@ model InsightItem {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
+  // ── Scraper / provenance ───────────────────────────────────────────────
+  source         String?   @map("source") // structured source slug (e.g. roadmap.sh/devops)
+  author         String?   @map("author") // originating author / scraper actor
+  status         String    @default("published") @map("status") // draft | published
+
+  // ── Background config (D4): image | animation + ref (image key or preset id)
+  backgroundType String    @default("animation") @map("background_type")
+  backgroundRef  String?   @map("background_ref")
+
   @@index([topic])
   @@index([isPublished])
   @@index([sortOrder])
   @@index([createdAt])
+  @@index([source])
   @@map("insight_items")
 }

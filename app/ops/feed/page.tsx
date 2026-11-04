@@ -57,6 +57,8 @@ export default function OpsFeedPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [scraping, setScraping] = useState(false);
+  const [scrapeMessage, setScrapeMessage] = useState("");
 
   const [form, setForm] = useState<Partial<InsightItem>>({
     title: "",
@@ -157,6 +159,26 @@ export default function OpsFeedPage() {
     }
   };
 
+  const handleScrape = async () => {
+    setScraping(true);
+    setScrapeMessage("");
+    try {
+      const res = await fetch("/api/ops/feed/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source: "roadmap.sh" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Scrape failed");
+      setScrapeMessage(data.message || "Scrape complete");
+      await fetchInsights();
+    } catch (err: any) {
+      setScrapeMessage(err.message || "Scrape failed");
+    } finally {
+      setScraping(false);
+    }
+  };
+
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Delete micro-insight "${title}"?`)) return;
     try {
@@ -174,6 +196,12 @@ export default function OpsFeedPage() {
 
   return (
     <div className="space-y-6 font-sans">
+      {/* Scrape notification toast */}
+      {scrapeMessage && (
+        <div className="fixed top-4 right-4 z-50 px-4 py-3 bg-bg-surface border border-accent/50 text-accent text-xs font-mono rounded-lg shadow-lg animate-in slide-in-from-right">
+          {scrapeMessage}
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
@@ -208,6 +236,15 @@ export default function OpsFeedPage() {
           >
             <Plus className="w-4 h-4" />
             <span>Create Insight</span>
+          </button>
+
+          <button
+            onClick={handleScrape}
+            disabled={scraping}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-surface border border-border text-text-secondary hover:text-text-primary text-xs font-mono transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <Sparkles className="w-4 h-4 text-accent" />
+            <span>{scraping ? "Scraping..." : "Run Scrape"}</span>
           </button>
         </div>
       </div>
