@@ -5,7 +5,7 @@
  *  - /ops and /api: never touched (private, always live)
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC_CACHE = `jcu-static-${VERSION}`;
 const PAGE_CACHE = `jcu-pages-${VERSION}`;
 const OFFLINE_URL = "/offline";
@@ -63,7 +63,7 @@ function isCacheableAsset(url) {
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
     url.pathname.startsWith("/fonts/") ||
-    /\.(?:css|js|mjs|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|avif|ico|mp4)$/i.test(url.pathname)
+    /\.(?:css|js|mjs|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|avif|ico|mp4|webm|pdf|zip|md|txt|json|csv)$/i.test(url.pathname)
   );
 }
 

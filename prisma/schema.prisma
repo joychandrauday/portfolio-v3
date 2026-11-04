@@ -345,6 +345,45 @@ model Document {
   @@map("documents")
 }
 
+// ── Public Learning Materials (phase & step wise) ─────────────────────
+// Files live in external storage (Cloudinary). This table is the index: it
+// links a stored asset or an inline note to a position in the static
+// roadmap skeleton (lib/roadmaps-data.ts).
+model LearnResource {
+  id          String  @id @default(cuid())
+  slug        String
+  roadmapSlug String  @map("roadmap_slug")
+  phaseSlug   String? @map("phase_slug")
+  stepSlug    String? @map("step_slug")
+
+  // file | link | video | note
+  kind   String  @default("file")
+  // markdown | html | code | checklist (only meaningful for `note`)
+  format String?
+
+  title     String
+  titleBn   String? @map("title_bn")
+  summary   String?
+  summaryBn String? @map("summary_bn")
+
+  url        String?
+  storageKey String? @map("storage_key")
+  mimeType   String? @map("mime_type")
+  sizeBytes  Int?    @map("size_bytes")
+  body       String?
+
+  isPublic    Boolean   @default(false) @map("is_public")
+  sortOrder   Int       @default(0)     @map("sort_order")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt      @map("updated_at")
+
+  @@unique([roadmapSlug, phaseSlug, stepSlug, slug])
+  @@index([roadmapSlug, phaseSlug, stepSlug, sortOrder])
+  @@index([isPublic])
+  @@map("learn_resources")
+}
+
 // ── Micro-Insights Snap Feed ──────────────────────────────────────────
 model InsightItem {
   id             String    @id @default(cuid())

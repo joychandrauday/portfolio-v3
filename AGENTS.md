@@ -8,6 +8,7 @@
 - **Database**: PostgreSQL (Neon serverless) with Prisma ORM
 - **Auth**: JWT session via `jose` stored in HTTP-only `ops_session` cookie
 - **AI Automation**: Groq (`groq-sdk`, Llama 3.3) & Google Gemini (`@google/generative-ai`, 1.5 Flash) free tiers
+- **Media storage**: Cloudinary signed uploads (public learning materials — PDF, images, video, zip)
 - **Deployment**: Vercel + Neon PostgreSQL
 
 ## Commands
@@ -43,6 +44,12 @@ app/
   blog/[slug]/page.tsx  # Dynamic bilingual blog reading route
   manifest.ts           # PWA manifest → /manifest.webmanifest
   offline/page.tsx      # Offline fallback (precached by the service worker)
+  learn/
+    page.tsx            # Public roadmap index (5 roadmaps, search + difficulty filter)
+    [slug]/page.tsx     # Roadmap hub — phase tree, step inspector, progress
+    [slug]/[phase]/page.tsx            # Phase page — outcomes, materials, step list
+    [slug]/[phase]/[step]/page.tsx     # Step page — commands, notes, files, status
+    [slug]/[phase]/[step]/[material]/page.tsx # Long-form note / asset page
   ops/
     layout.tsx          # Ops navigation sidebar & auth verification
     login/page.tsx      # Terminal gateway security login
@@ -54,6 +61,7 @@ app/
     learnings/
       LearningFlow.tsx  # Tracks → modules → sessions: streaks, progress, next-up
       NotesPanel.tsx    # Long-form research notes + AI ingestion (separate tab)
+      MaterialsPanel.tsx # Phase/step public materials: Cloudinary upload + publish
       _components/       # Track / Module / Session modals + shared types
     inbox/page.tsx      # Inquiries inbox with AI response drafting & email dispatch
     settings/page.tsx   # Free tier AI API keys & system credentials
@@ -69,6 +77,9 @@ app/
       jobs/fetch-url/route.ts # Fetch a JD URL server-side and strip HTML → text
       companies/route.ts      # Company knowledge base with salary aggregates
       learnings/route.ts# Second brain CRUD
+      learn/route.ts        # Learning Flow dispatcher (tracks, modules, sessions, roadmap sync)
+      learn/upload/route.ts # Cloudinary upload signature (ops only)
+      learn/resources/route.ts # Public learning materials CRUD (phase/step wise)
       inbox/route.ts    # Contact messages manager
 components/
   Navbar.tsx            # Bilingual switcher (EN / বাংলা) + /ops shortcut
@@ -119,6 +130,17 @@ Paste a job description (or fetch it by URL) into `/ops/jobs` → **Extract Ever
    and schedules `nextActionAt` (follow-up) 5 days out.
 5. **Automation** — follow-up alarms, deadline-within-7-days alerts, draft-ready badges,
    high-priority leads, and duplicate company+role detection on import.
+
+## Public Learning Materials (`/learn`)
+
+- **Routes**: `/learn` (index) → `/learn/[slug]` (hub) → `/learn/[slug]/[phase]` → `/learn/[slug]/[phase]/[step]` → optional `/[material]`. All four are **Server Components** with `generateStaticParams()` + `generateMetadata()`, so phase/step content is indexed; only status widgets are client islands. `/learning/*` permanently redirects to `/learn/*`.
+- **Skeleton vs attachments**: phases/steps live in `lib/roadmaps-data.ts` (static, typed). Files/links/videos/notes live in the `LearnResource` table, keyed by `(roadmapSlug, phaseSlug, stepSlug)` — `phaseSlug = null` means roadmap-level, `stepSlug = null` means phase-level.
+- **Reads**: `lib/learn-resources.ts` — `getRoadmapResources()` is wrapped in `unstable_cache` (tag `learn-resources`, 5 min) and degrades to empty buckets when the DB is unreachable.
+- **Writes**: `/ops/learnings` → **Public Materials** tab (`app/ops/learnings/MaterialsPanel.tsx`) → `POST /api/ops/learn/resources` (`create_resource` / `update_resource` / `delete_resource` / `reorder_resource`). Every write calls `revalidateTag("learn-resources")`, so publishing is instant without a redeploy.
+- **Uploads**: Cloudinary signed direct uploads. The browser asks `/api/ops/learn/upload` (cookie-gated) for a signature, then POSTs the file straight to `api.cloudinary.com` — no serverless body limit. Signed params: `folder`, `timestamp`, `allowed_formats`, `max_file_size` (25 MB). Env: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`. `raw` bucket for pdf/zip/md, `image`/`video` for media. SVG is intentionally not allowed.
+- **Rendering**: markdown/HTML note bodies are sanitized **on the server** (`lib/markdown.ts` → `renderArticleHtml`, shared with the blog) and passed to the client as HTML, keeping `marked` + `sanitize-html` out of the public JS bundle. `lib/learn-notes.ts` builds that map.
+- **SEO**: each roadmap/phase/step emits canonical URLs + JSON-LD (`LearningResource` / `Course`) and is listed in `app/sitemap.ts`.
+- **Visibility**: `LearnResource.isPublic` must be true **and** `publishedAt` non-null to appear publicly; drafts stay ops-only.
 
 ## PWA & Mobile
 

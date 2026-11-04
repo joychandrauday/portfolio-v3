@@ -24,6 +24,12 @@ export interface RoadmapPhase {
   title: string;
   duration: string;
   description: string;
+  /** Optional Bengali overrides — fall back to English when absent. */
+  titleBn?: string;
+  descriptionBn?: string;
+  /** Phase-level learning outcomes, shown on the phase page. */
+  outcomes?: string[];
+  outcomesBn?: string[];
   steps: RoadmapStep[];
 }
 

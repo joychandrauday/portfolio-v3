@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { BrainCircuit, Route, BookOpen } from "lucide-react";
+import { BrainCircuit, Route, BookOpen, Paperclip } from "lucide-react";
 import LearningFlow from "./LearningFlow";
 import NotesPanel from "./NotesPanel";
+import MaterialsPanel from "./MaterialsPanel";
 
-type Tab = "flow" | "notes";
+type Tab = "flow" | "notes" | "materials";
 
 export default function OpsLearningsPage() {
   const [tab, setTab] = useState<Tab>("flow");
@@ -54,9 +55,21 @@ export default function OpsLearningsPage() {
           <BookOpen className="w-4 h-4" />
           <span>Notes &amp; TIL</span>
         </button>
+
+        <button
+          onClick={() => setTab("materials")}
+          className={`flex shrink-0 items-center gap-2 whitespace-nowrap px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+            tab === "materials"
+              ? "bg-accent/15 text-accent border border-accent/30 font-bold"
+              : "text-text-muted hover:text-text-primary hover:bg-bg-elevated border border-transparent"
+          }`}
+        >
+          <Paperclip className="w-4 h-4" />
+          <span>Public Materials</span>
+        </button>
       </div>
 
-      {tab === "flow" ? <LearningFlow /> : <NotesPanel />}
+      {tab === "flow" ? <LearningFlow /> : tab === "notes" ? <NotesPanel /> : <MaterialsPanel />}
     </div>
   );
 }

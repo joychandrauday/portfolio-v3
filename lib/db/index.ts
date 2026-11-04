@@ -31,6 +31,7 @@ export type AppSetting = import("@prisma/client").AppSetting;
 export type DocumentFolder = import("@prisma/client").DocumentFolder;
 export type Document = import("@prisma/client").Document;
 export type InsightItem = import("@prisma/client").InsightItem;
+export type LearnResource = import("@prisma/client").LearnResource;
 
 // Health check
 export async function checkDbConnection(): Promise<boolean> {

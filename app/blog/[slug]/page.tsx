@@ -6,8 +6,7 @@ import { getStaticPost } from "@/lib/posts-static";
 import Header from "@/components/Header";
 import { Clock, ArrowLeft, Calendar, Tag } from "lucide-react";
 import type { Metadata } from "next";
-import sanitizeHtml from "sanitize-html";
-import { marked } from "marked";
+import { renderArticleHtml } from "@/lib/markdown";
 
 interface BlogPostView {
   slug: string;
@@ -100,38 +99,6 @@ export async function generateMetadata({
       canonical: post.canonicalUrl || `https://joychandrauday.vercel.app/blog/${post.slug}`,
     },
   };
-}
-
-/**
- * Sanitizes rich HTML or parses legacy markdown safely
- */
-function renderArticleHtml(raw: string): string {
-  if (!raw) return "";
-
-  // Check if it's already HTML (e.g. from TipTap editor)
-  const isHtml = /<\/?[a-z][\s\S]*>/i.test(raw);
-  const html = isHtml ? raw : (marked.parse(raw) as string);
-
-  return sanitizeHtml(html, {
-    allowedTags: [
-      "h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "ul", "ol", "li",
-      "blockquote", "code", "pre", "hr", "br", "strong", "em", "del",
-      "img", "table", "thead", "tbody", "tr", "th", "td", "span", "div"
-    ],
-    allowedAttributes: {
-      a: ["href", "name", "target", "rel"],
-      img: ["src", "alt", "title", "width", "height", "class"],
-      code: ["class"],
-      pre: ["class"],
-      span: ["class", "style"],
-      div: ["class"],
-      p: ["class", "style"],
-      h1: ["class", "style"],
-      h2: ["class", "style"],
-      h3: ["class", "style"],
-    },
-    allowedSchemes: ["http", "https", "mailto"],
-  });
 }
 
 export default async function BlogPostPage({

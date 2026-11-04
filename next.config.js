@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        // The public learning hub lives at /learn — keep old links working.
+        source: "/learning/:path*",
+        destination: "/learn/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
