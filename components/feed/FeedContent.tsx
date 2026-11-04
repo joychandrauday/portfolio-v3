@@ -177,11 +177,9 @@ export default function FeedContent() {
     background: THEME_GRADIENTS[theme] || THEME_GRADIENTS["cyber-mesh"],
   });
 
-  const currentItem = filtered[currentIndex];
-
   return (
     <div className="min-h-screen bg-bg text-text-primary font-sans">
-      {/* Scroll-snap container - mobile full-screen, desktop normal */}
+      {/* Scroll-snap container - compact feed cards */}
       <div
         ref={snapRef}
         className="relative h-full w-full overflow-y-auto snap-y snap-mandatory"
@@ -214,74 +212,74 @@ export default function FeedContent() {
                 backgroundSize: "20px 20px",
               }} />
 
-              {/* Content */}
-              <div className="relative z-10 flex flex-col h-full w-full p-6 md:p-10 lg:p-16">
+              {/* Compact content area */}
+              <div className="relative z-10 flex flex-col h-full w-full p-4 md:p-6 lg:p-8">
                 {/* Topic badge */}
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="px-3 py-1 rounded-full bg-accent/20 border border-accent/40 text-accent text-[10px] font-mono uppercase tracking-wider">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 text-accent text-[10px] font-mono uppercase tracking-wider">
                     {item.category || item.topic}
                   </span>
-                  <span className="text-xs font-mono text-text-muted/60">#{item.topic}</span>
+                  <span className="text-[10px] font-mono text-text-muted/60">#{item.topic}</span>
                 </div>
 
                 {/* Title */}
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif text-white leading-tight mb-4">
+                <h2 className="text-xl md:text-2xl font-bold font-serif text-white leading-tight mb-2">
                   {item.title}
-                </h1>
+                </h2>
 
-                {/* Summary */}
+                {/* Summary - short, informative */}
                 {item.summary && (
-                  <p className="text-base md:text-lg text-white/80 font-sans leading-relaxed mb-6 max-w-2xl">
+                  <p className="text-sm md:text-base text-white/80 font-sans leading-relaxed mb-3 max-w-2xl line-clamp-2">
                     {item.summary}
                   </p>
                 )}
 
-                {/* Main content */}
+                {/* Main content - compact */}
                 <div className="flex-1 overflow-y-auto pr-4 max-w-2xl">
-                  <div className="prose prose-invert max-w-none text-white/90 text-base leading-relaxed">
+                  <div className="prose prose-invert max-w-none text-white/90 text-sm md:text-base leading-relaxed mb-3">
                     <p>{item.content}</p>
                   </div>
 
-                  {/* Code snippet */}
+                  {/* Code snippet - compact */}
                   {item.codeSnippet && (
-                    <div className="mt-6 p-4 bg-black/50 border border-white/10 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="mt-3 p-2 bg-black/50 border border-white/10 rounded-lg">
+                      <div className="flex items-center justify-between mb-1">
                         <span className="text-[10px] font-mono text-accent">CODE</span>
                         <button
                           onClick={() => handleCopy(item.codeSnippet!, item.id)}
-                          className="flex items-center gap-1 text-xs font-mono text-white/60 hover:text-accent"
+                          className="flex items-center gap-1 text-[10px] font-mono text-white/60 hover:text-accent"
                         >
-                          <Copy className="w-3.5 h-3.5" />
+                          <Copy className="w-3 h-3" />
                           {copiedSnippet === item.id ? "Copied!" : "Copy"}
                         </button>
                       </div>
-                      <pre className="text-xs font-mono text-green-300 overflow-x-auto"><code>{item.codeSnippet}</code></pre>
+                      <pre className="text-[10px] font-mono text-green-300 overflow-x-auto"><code>{item.codeSnippet}</code></pre>
                     </div>
                   )}
 
-                  {/* Command snippet */}
+                  {/* Command snippet - compact */}
                   {item.commandSnippet && (
-                    <div className="mt-4 p-4 bg-black/50 border border-white/10 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="mt-2 p-2 bg-black/50 border border-white/10 rounded-lg">
+                      <div className="flex items-center justify-between mb-1">
                         <span className="text-[10px] font-mono text-accent">COMMAND</span>
                         <button
                           onClick={() => handleCopy(item.commandSnippet!, item.id)}
-                          className="flex items-center gap-1 text-xs font-mono text-white/60 hover:text-accent"
+                          className="flex items-center gap-1 text-[10px] font-mono text-white/60 hover:text-accent"
                         >
-                          <Copy className="w-3.5 h-3.5" />
+                          <Copy className="w-3 h-3" />
                           {copiedSnippet === item.id ? "Copied!" : "Copy"}
                         </button>
                       </div>
-                      <pre className="text-xs font-mono text-yellow-300 overflow-x-auto"><code>{item.commandSnippet}</code></pre>
+                      <pre className="text-[10px] font-mono text-yellow-300 overflow-x-auto"><code>{item.commandSnippet}</code></pre>
                     </div>
                   )}
 
-                  {/* Tags */}
-                  <div className="mt-6 flex flex-wrap gap-2">
+                  {/* Tags - compact */}
+                  <div className="mt-3 flex flex-wrap gap-1">
                     {item.tags.slice(0, 6).map((t) => (
                       <span
                         key={t}
-                        className="px-2 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-mono text-white/80"
+                        className="px-2 py-0.5 rounded bg-white/10 border border-white/20 text-[10px] font-mono text-white/80"
                       >
                         #{t}
                       </span>
@@ -289,26 +287,26 @@ export default function FeedContent() {
                   </div>
                 </div>
 
-                {/* Bottom meta */}
-                <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                  <div className="flex items-center gap-4">
+                {/* Bottom meta - compact */}
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <div className="flex items-center gap-3">
                     <button
                       onClick={() => toggleLike(item.id)}
-                      className="flex items-center gap-1.5 text-white/70 hover:text-rose-400 transition-colors"
+                      className="flex items-center gap-1 text-white/70 hover:text-rose-400 transition-colors"
                     >
-                      <Heart className={likedMap[item.id] ? "fill-current text-rose-400" : "w-5 h-5"} />
-                      <span className="text-sm font-mono">{likesCountMap[item.id] ?? item.likesCount}</span>
+                      <Heart className={likedMap[item.id] ? "fill-current text-rose-400" : "w-4 h-4"} />
+                      <span className="text-xs font-mono">{likesCountMap[item.id] ?? item.likesCount}</span>
                     </button>
                     <button
                       onClick={() => setBookmarkedMap({ ...bookmarkedMap, [item.id]: !bookmarkedMap[item.id] })}
-                      className="flex items-center gap-1.5 text-white/70 hover:text-amber-400 transition-colors"
+                      className="flex items-center gap-1 text-white/70 hover:text-amber-400 transition-colors"
                     >
-                      <Bookmark className={bookmarkedMap[item.id] ? "fill-current text-amber-400" : "w-5 h-5"} />
+                      <Bookmark className={bookmarkedMap[item.id] ? "fill-current text-amber-400" : "w-4 h-4"} />
                     </button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1.5 text-white/70 hover:text-accent transition-colors">
-                      <Share2 className="w-5 h-5" />
+                  <div className="flex items-center gap-1">
+                    <button className="flex items-center gap-1 text-white/70 hover:text-accent transition-colors">
+                      <Share2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -316,8 +314,8 @@ export default function FeedContent() {
 
               {/* Scroll indicator */}
               {idx < filtered.length - 1 && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce">
-                  <ChevronDown className="w-6 h-6 text-white/50" />
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce">
+                  <ChevronDown className="w-5 h-5 text-white/50" />
                 </div>
               )}
             </article>
